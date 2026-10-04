@@ -12,4 +12,7 @@ router.post('/', userController.registerUser);
 // So /api/users/123 and /api/users/abc will both match this route, and the dynamic part will be saved in req.params.id
 router.get('/:id', userController.getUser);
 // Export the router so it can be imported in the main application file
+// NEW ROUTE: POST /api/users/login - Handle user authentication
+// We place it here so it will be accessible at /api/users/login
+router.post('/login', userController.login);
 module.exports = router;

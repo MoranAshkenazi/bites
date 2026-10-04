@@ -79,8 +79,44 @@ const getUser = async (req, res) => {
         return res.status(404).json({ error: "User not found" });
     }
 };
+// Function to handle user login (POST /api/users/login)
+const login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // 1. Check if both fields are provided
+        if (!username || !password) {
+            return res.status(400).json({ error: "Username and password are required" });
+        }
+
+        // 2. Find the user by username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        // 3. Hash the incoming password with the SAME method as in registration
+        const hashedInputPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+        // 4. Compare the hashed input with the stored hash
+        if (user.password !== hashedInputPassword) {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        // 5. Success: Remove password from response and return user data
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        return res.status(200).json(userResponse);
+
+    } catch (err) {
+        console.error("Login Error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 module.exports = {
     registerUser,
-    getUser
+    getUser,
+    login
 };
