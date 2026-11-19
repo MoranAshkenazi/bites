@@ -357,3 +357,29 @@ body.dark-theme .clear-search-btn {
 .past-orders-button:active {
     transform: scale(0.96);
 }
+/* Small screens: keep Login and Sign up on the same line as the logo and search */
+@media (max-width: 576px) {
+    .navbar-left {
+        gap: 10px;
+    }
+    .navbar-right {
+        gap: 8px;
+    }
+    .navbar-center {
+        margin: 0 8px;
+        min-width: 0;
+    }
+}
+
+/* Very small screens: move the search bar to its own row so Login and Sign up stay visible */
+@media (max-width: 420px) {
+    .wolt-navbar {
+        flex-wrap: wrap;
+    }
+    .wolt-navbar .navbar-center {
+        order: 3;
+        flex: 0 0 100%;
+        max-width: none;
+        margin: 8px 0 0;
+    }
+}
