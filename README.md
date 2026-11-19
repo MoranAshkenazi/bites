@@ -376,7 +376,7 @@ Detailed technical documentation lives in the [`wiki/`](wiki/) folder:
 
 ## Known Limitations
 
-- **Recommendations fall back to plain menu items.** `GET /api/recommendations` connects to a fixed address (`127.0.0.1:5005`) and uses its own command format, so it normally returns an empty list. Both clients then fall back to showing other items from the same restaurant.
+- **Recommendations are empty for guests and for users whose orders are not yet in the C++ server.** `GET /api/recommendations` requires a logged-in user, and the C++ server only knows users whose orders have been synced.
 - **Only a user's first order is recorded in the C++ server.** Orders are sent as `POST`, which the C++ server rejects for existing users. Guest orders are unaffected because each guest gets a new ID.
 - **`tests/HelpCommandTest.cpp` is out of date.** It expects the original `help` output, so the unit test run stops at that test.
 - Passwords are hashed with unsalted SHA-256, and the JWT secret is set in the source code. Change both before any real deployment.
