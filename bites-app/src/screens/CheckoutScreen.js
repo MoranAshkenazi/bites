@@ -45,7 +45,10 @@ const CheckoutScreen = ({ navigation, user }) => {
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
                 // 1. Primary endpoint check (C++ server gateway)
-                const targetUrl = `${API_BASE_URL}/api/recommendations?restaurantId=${activeRestaurantId}`;
+                // The route requires a productId: use the most recently added cart item
+                const lastItem = cartItems[cartItems.length - 1];
+                const lastProductId = lastItem._id || lastItem.id;
+                const targetUrl = `${API_BASE_URL}/api/recommendations?productId=${lastProductId}&restaurantId=${activeRestaurantId}`;
                 const recsResponse = await fetch(targetUrl, { headers });
                 let recData = [];
 
