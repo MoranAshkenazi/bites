@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { JWT_SECRET } = require('../utils/security');
 const authMiddleware = (req, res, next) => {
   
     // Get the token from the Authorization header
@@ -12,7 +13,7 @@ const authMiddleware = (req, res, next) => {
 
     try {
         // Verify the token using the same secret key
-        const decoded = jwt.verify(token, 'my_super_secret_key'); 
+        const decoded = jwt.verify(token, JWT_SECRET); 
         req.user = decoded; // Save user info in the request object for later use
         next(); // Proceed to the next middleware or controller
     } catch (error) {
@@ -40,7 +41,7 @@ const optionalAuthMiddleware = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, 'my_super_secret_key');
+        const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {

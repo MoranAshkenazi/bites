@@ -119,6 +119,7 @@ flowchart LR
 git clone https://github.com/yarinraj/Bites.git
 cd Bites
 git checkout main-ex5
+export JWT_SECRET=$(openssl rand -hex 32)   # required: signs login tokens
 docker-compose up --build
 ```
 
@@ -206,6 +207,7 @@ Environment variables read by the API server:
 | `MONGODB_URI` | `mongodb://localhost:27017/woltDB` | MongoDB connection string |
 | `CPP_SERVER_HOST` | `127.0.0.1` | Host of the C++ server |
 | `CPP_SERVER_PORT` | `9000` | Port of the C++ server |
+| `JWT_SECRET` | *(required)* | Secret used to sign login tokens. The API refuses to start without it |
 
 `docker-compose.yml` sets all three for the containerized setup (`mongo`, `cpp-server`, and port `8000`). The API server's own port is fixed at `8080`.
 
@@ -379,7 +381,8 @@ Detailed technical documentation lives in the [`wiki/`](wiki/) folder:
 - **Recommendations are empty for guests and for users whose orders are not yet in the C++ server.** `GET /api/recommendations` requires a logged-in user, and the C++ server only knows users whose orders have been synced.
 - **Only a user's first order is recorded in the C++ server.** Orders are sent as `POST`, which the C++ server rejects for existing users. Guest orders are unaffected because each guest gets a new ID.
 - **`tests/HelpCommandTest.cpp` is out of date.** It expects the original `help` output, so the unit test run stops at that test.
-- Passwords are hashed with unsalted SHA-256, and the JWT secret is set in the source code. Change both before any real deployment.
+- Passwords are hashed with salted scrypt. Accounts created before this change still have SHA-256 hashes; they are upgraded automatically on their next successful login.
+- Login tokens signed with the previous hardcoded secret are no longer valid, so users must log in again after updating.
 
 ---
 

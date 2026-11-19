@@ -4,8 +4,7 @@ const User = require('../models/user');
 // Import JWT library for token generation
 const jwt = require('jsonwebtoken');
 
-// Import crypto for hashing the password before comparison
-const crypto = require('crypto');
+const { JWT_SECRET, verifyPassword, hashPassword } = require('../utils/security');
 
 
 // Create login token
@@ -25,17 +24,18 @@ const createToken = async (req, res) => {
         // Find the user in MongoDB
         const user = await User.findOne({ username });
 
-        // Hash the incoming password using SHA-256
-        const hashedInputPassword = crypto
-            .createHash('sha256')
-            .update(password)
-            .digest('hex');
-
         // Validate user and password
-        if (!user || user.password !== hashedInputPassword) {
+        const { valid, needsRehash } = await verifyPassword(password, user && user.password);
+        if (!user || !valid) {
             return res.status(401).json({
                 error: 'Invalid username or password'
             });
+        }
+
+        // Upgrade legacy SHA-256 hashes to salted scrypt after a successful login
+        if (needsRehash) {
+            user.password = await hashPassword(password);
+            await user.save();
         }
 
         // Generate JWT token
@@ -45,7 +45,7 @@ const createToken = async (req, res) => {
                 username: user.username,
                 role: user.role
             },
-            'my_super_secret_key'
+            JWT_SECRET
         );
 
         // Return token and user details to the client

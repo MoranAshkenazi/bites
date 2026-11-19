@@ -1,4 +1,4 @@
-const crypto = require('crypto'); 
+const { JWT_SECRET, hashPassword, verifyPassword } = require('../utils/security');
 const User = require('../models/user'); // importing the User model to interact with the users collection in MongoDB
 
 // validating password complexity function: at least 8 characters, including letters and numbers
@@ -31,8 +31,8 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ error: "Username is already taken." });
         }
 
-        // hashing the password using SHA-256 before saving to the database
-        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+        // hashing the password with a salted scrypt hash before saving to the database
+        const hashedPassword = await hashPassword(password);
 
         // saving the new user to the database with the hashed password
         const newUser = new User({
@@ -100,13 +100,17 @@ const login = async (req, res) => {
             return res.status(401).json({ error: "Invalid username or password" });
         }
 
-        // 3. Hash the provided password to compare with the stored hash
-        const hashedInputPassword = crypto.createHash('sha256').update(password).digest('hex');
-
-        // 4. Verify password match
-        if (user.password !== hashedInputPassword) {
+        // 3. Verify the password against the stored hash
+        const { valid, needsRehash } = await verifyPassword(password, user.password);
+        if (!valid) {
             // Returning the same error message for security reasons
             return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        // 4. Upgrade legacy SHA-256 hashes to salted scrypt
+        if (needsRehash) {
+            user.password = await hashPassword(password);
+            await user.save();
         }
 
         // 5. Successful login: remove password from response object

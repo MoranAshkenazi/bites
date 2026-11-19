@@ -3,6 +3,7 @@ const router = express.Router();
 const net = require('net');
 const jwt = require('jsonwebtoken');
 const Restaurant = require('../models/restaurant');
+const { JWT_SECRET } = require('../utils/security');
 
 // Address of the C++ recommendation server (same variables as the order gateway)
 const CPP_SERVER_HOST = process.env.CPP_SERVER_HOST || '127.0.0.1';
@@ -14,7 +15,7 @@ const getUserIdFromRequest = (req) => {
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return null;
     try {
-        const decoded = jwt.verify(token, 'my_super_secret_key');
+        const decoded = jwt.verify(token, JWT_SECRET);
         return decoded.userId ? decoded.userId.toString() : null;
     } catch (error) {
         return null;
