@@ -202,11 +202,11 @@ function Navbar({ user, setUser, searchQuery, setSearchQuery }) {
                         </div>
                     </div>
                 ) : (
-                    <div className="navbar-right d-flex gap-2">
-                        <Link to="/login" className="btn btn-outline-info rounded-pill px-4 fw-bold shadow-sm" style={{ borderWidth: '2px' }}>
+                    <div className="navbar-right d-flex gap-2 flex-shrink-0">
+                        <Link to="/login" className="btn btn-outline-info rounded-pill px-3 px-md-4 fw-bold shadow-sm text-nowrap" style={{ borderWidth: '2px' }}>
                             Login
                         </Link>
-                        <Link to="/register" className="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
+                        <Link to="/register" className="btn btn-info text-white rounded-pill px-3 px-md-4 fw-bold shadow-sm text-nowrap">
                             Sign up
                         </Link>
                     </div>
